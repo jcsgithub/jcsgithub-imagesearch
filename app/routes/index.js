@@ -14,12 +14,12 @@ module.exports = function (app) {
 	app.route('/api/imagesearch/:searchTxt')
 		.get(function (req, res) {
 			var query = req.params.searchTxt;
-			var offset = Number(req.query.offset) * 10 || 0;
+			var offset = Number(req.query.offset) || 0;
 			
 			query += '&num=10&searchType=image';
 			
 			if (offset)
-				query += '&start=' + (offset + 1);
+				query += '&start=' + (offset);
 			
 			var url = 'https://www.googleapis.com/customsearch/v1?' 
 				+ 'key=' + process.env.GOOGLE_API_KEY 
@@ -27,9 +27,9 @@ module.exports = function (app) {
 				+ '&q=' + query;
 			
 			request(url, function (error, response, body) {
+				body = (body)? JSON.parse(body) : null;
+				
 				if (!error && response.statusCode == 200) {
-					body = JSON.parse(body);
-					
 					var finalData = [];
 					body.items.forEach(function(item, index) {
 						finalData.push({
@@ -42,7 +42,7 @@ module.exports = function (app) {
 					
 					res.status(200).send(finalData);
 				} else {
-					res.status(400);
+					res.status(400).send(body);
 				}
 			})
 		});
