@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser')
 
 var app = express();
-require('dotenv').load();
+// require('dotenv').load();
 
 mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise;
