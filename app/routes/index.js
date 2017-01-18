@@ -1,7 +1,7 @@
 'use strict';
 
 var path = process.cwd();
-var Urls = require('../models/urls.js');
+var Searches = require('../models/searches.js');
 
 var request = require('request');
 
@@ -9,6 +9,19 @@ module.exports = function (app) {
 	app.route('/')
 		.get(function (req, res) {
 			res.sendFile(path + '/public/index.html');
+		});
+		
+	app.route('/api/latest/imagesearch')
+		.get(function (req, res) {
+			Searches
+	            .find()
+	            .limit(10)
+	            .select('-__v')
+	            .exec(function (err, result) {
+	                if (err)  { throw err; }
+	                
+	                res.status(200).send(result);
+	            });
 		});
 		
 	app.route('/api/imagesearch/:searchTxt')
