@@ -16,11 +16,20 @@ module.exports = function (app) {
 			Searches
 	            .find()
 	            .limit(10)
+	            .sort('-_id')
 	            .select('-__v')
-	            .exec(function (err, result) {
+	            .exec(function (err, results) {
 	                if (err)  { throw err; }
 	                
-	                res.status(200).send(result);
+	                var finalData = [];
+	                results.forEach(function (item) {
+	                	finalData.push({
+							term: item.term,
+							when: item._id.getTimestamp()
+						});
+	                });
+	                
+	                res.status(200).send(finalData);
 	            });
 		});
 		
@@ -44,7 +53,7 @@ module.exports = function (app) {
 				
 				if (!error && response.statusCode == 200) {
 					var finalData = [];
-					body.items.forEach(function(item, index) {
+					body.items.forEach(function(item) {
 						finalData.push({
 							url: item.link,
 							title: item.title,
@@ -52,6 +61,11 @@ module.exports = function (app) {
 							context: item.image.contextLink
 						});
 					});
+					
+					// save to Searches
+					var newSearch = new Searches();
+			        newSearch.term = req.params.searchTxt;
+					newSearch.save();
 					
 					res.status(200).send(finalData);
 				} else {
